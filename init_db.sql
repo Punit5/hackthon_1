@@ -10,7 +10,10 @@ CREATE TABLE goals (
     goal_type VARCHAR(50) NOT NULL,
     goal_amount NUMERIC NOT NULL,
     initial_amount NUMERIC NOT NULL,
-    current_amount NUMERIC NOT NULL
+    current_amount NUMERIC NOT NULL,
+    monthly_contribution NUMERIC DEFAULT 0,
+    withdrawal_period_months INTEGER DEFAULT 0,
+    expected_return_rate NUMERIC DEFAULT 0.05
 );
 
 CREATE TABLE goal_history (
@@ -29,11 +32,11 @@ INSERT INTO clients (client_name, age) VALUES
 ('Alice Lee', 29);
 
 -- Seed goals
-INSERT INTO goals (client_id, goal_type, goal_amount, initial_amount, current_amount) VALUES
-(1, 'Retirement', 100000, 72000, 82000),
-(1, 'Home', 50000, 10000, 20000),
-(2, 'Home', 50000, 20000, 25000),
-(3, 'Education', 30000, 10000, 15000);
+INSERT INTO goals (client_id, goal_type, goal_amount, initial_amount, current_amount, monthly_contribution, withdrawal_period_months, expected_return_rate) VALUES
+(1, 'Retirement', 100000, 72000, 82000, 1000, 60, 0.06),
+(1, 'Home', 50000, 10000, 20000, 500, 36, 0.05),
+(2, 'Home', 50000, 20000, 25000, 400, 24, 0.05),
+(3, 'Education', 30000, 10000, 15000, 300, 48, 0.04);
 
 -- Seed goal history
 -- Jane Doe Retirement (goal_id=1)

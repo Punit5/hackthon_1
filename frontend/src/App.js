@@ -132,38 +132,66 @@ function App() {
           {goalHistory.map((goal) => {
             const prog = percent(goal.current_amount, goal.goal_amount);
             const progColor = getProgressColor(prog);
+            const onTrack = goal.on_track;
+            const cardBorder = onTrack ? '#22c55e' : '#ef4444';
+            const cardBg = onTrack ? '#1a2e1a' : '#2e1a1a';
             return (
               <div
                 key={goal.id}
                 style={{
                   marginBottom: 32,
-                  border: "1px solid #27272f",
+                  border: `2px solid ${cardBorder}`,
                   borderRadius: 16,
                   padding: 24,
-                  background: "#23232a",
-                  boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
-                  transition: "box-shadow 0.2s, border 0.2s",
-                  cursor: "pointer",
+                  background: cardBg,
+                  boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                  transition: 'box-shadow 0.2s, border 0.2s',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.boxShadow = "0 4px 16px 0 rgba(56,189,248,0.10)";
-                  e.currentTarget.style.border = `1.5px solid ${progColor}`;
+                  e.currentTarget.style.boxShadow = `0 4px 16px 0 ${cardBorder}33`;
+                  e.currentTarget.style.border = `2.5px solid ${cardBorder}`;
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.boxShadow = "0 2px 8px 0 rgba(0,0,0,0.10)";
-                  e.currentTarget.style.border = "1px solid #27272f";
+                  e.currentTarget.style.boxShadow = '0 2px 8px 0 rgba(0,0,0,0.10)';
+                  e.currentTarget.style.border = `2px solid ${cardBorder}`;
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 32, marginRight: 12 }}>{goalIcons[goal.goal_type] || "🎯"}</span>
-                  <h2 style={{ margin: 0, fontWeight: 700, fontSize: 26, color: "#f3f4f6" }}>{goal.goal_type} Goal</h2>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: 32, marginRight: 12 }}>{goalIcons[goal.goal_type] || '🎯'}</span>
+                  <h2 style={{ margin: 0, fontWeight: 700, fontSize: 26, color: '#f3f4f6', display: 'flex', alignItems: 'center' }}>
+                    {goal.goal_type} Goal
+                    <span style={{
+                      marginLeft: 16,
+                      padding: '2px 14px',
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 16,
+                      background: onTrack ? '#22c55e' : '#ef4444',
+                      color: '#fff',
+                      display: 'inline-block',
+                      verticalAlign: 'middle',
+                      letterSpacing: 1
+                    }}>
+                      {onTrack ? '🟢 On Track' : '🔴 Off Track'}
+                    </span>
+                  </h2>
                 </div>
-                <div style={{ fontSize: 18, marginBottom: 8, color: "#e5e7eb" }}>
-                  <b>Goal Amount:</b> ${Number(goal.goal_amount).toLocaleString()}<br />
-                  {goal.initial_amount !== undefined && (
-                    <><b>Initial Amount:</b> ${Number(goal.initial_amount).toLocaleString()}<br /></>
-                  )}
-                  <b>Current Amount:</b> ${Number(goal.current_amount).toLocaleString()}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '8px 32px',
+                  fontSize: 18,
+                  marginBottom: 8,
+                  color: '#e5e7eb',
+                  fontWeight: 500
+                }}>
+                  <div><b>Goal Amount:</b> ${Number(goal.goal_amount).toLocaleString()}</div>
+                  <div><b>Initial Amount:</b> ${Number(goal.initial_amount).toLocaleString()}</div>
+                  <div><b>Current Amount:</b> ${Number(goal.current_amount).toLocaleString()}</div>
+                  <div><b>Monthly Contribution:</b> ${Number(goal.monthly_contribution).toLocaleString()}</div>
+                  <div><b>Withdrawal Period:</b> {goal.withdrawal_period_months} months</div>
+                  <div><b>Expected Return Rate:</b> {(Number(goal.expected_return_rate) * 100).toFixed(2)}% per year</div>
                 </div>
                 <div style={{ margin: "16px 0 24px 0", height: 16, background: "#27272f", borderRadius: 8, position: "relative", overflow: "hidden" }}>
                   <div

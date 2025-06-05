@@ -44,17 +44,28 @@ def get_clients():
 
 @app.get("/clients/{client_id}/all-goal-history")
 def get_all_goal_history(client_id: int):
+    def is_goal_on_track(current_amount, monthly_contribution, withdrawal_period_months, expected_return_rate, goal_amount):
+        r = expected_return_rate / 12
+        n = withdrawal_period_months
+        P = current_amount
+        PMT = monthly_contribution
+        if r == 0:
+            future_value = P + PMT * n
+        else:
+            future_value = P * (1 + r) ** n + PMT * (((1 + r) ** n - 1) / r)
+        return future_value >= goal_amount
+
     engine = create_engine(DATABASE_URL)
     with engine.connect() as conn:
-        # Get all goals for the client
+        # Get all goals for the client, including new fields
         goals_result = conn.execute(text("""
-            SELECT id, goal_type, goal_amount, initial_amount, current_amount
+            SELECT id, goal_type, goal_amount, initial_amount, current_amount, monthly_contribution, withdrawal_period_months, expected_return_rate
             FROM goals
             WHERE client_id = :client_id
             ORDER BY goal_type
         """), {"client_id": client_id})
         goals = [dict(row._mapping) for row in goals_result]
-        # For each goal, get its history
+        # For each goal, get its history and calculate on_track
         for goal in goals:
             history_result = conn.execute(text("""
                 SELECT goal_amount, current_amount, last_message_sent, created_at
@@ -63,6 +74,13 @@ def get_all_goal_history(client_id: int):
                 ORDER BY created_at
             """), {"goal_id": goal["id"]})
             goal["history"] = [dict(row._mapping) for row in history_result]
+            goal["on_track"] = is_goal_on_track(
+                goal["current_amount"],
+                goal["monthly_contribution"],
+                goal["withdrawal_period_months"],
+                goal["expected_return_rate"],
+                goal["goal_amount"]
+            )
     if not goals:
         raise HTTPException(status_code=404, detail="No goals found for this client.")
     return convert_decimals(goals)
