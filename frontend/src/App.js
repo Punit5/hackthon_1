@@ -131,10 +131,10 @@ function App() {
         <div style={{ marginTop: 16 }}>
           {goalHistory.map((goal) => {
             const prog = percent(goal.current_amount, goal.goal_amount);
-            const progColor = getProgressColor(prog);
             const onTrack = goal.on_track;
             const cardBorder = onTrack ? '#22c55e' : '#ef4444';
             const cardBg = onTrack ? '#1a2e1a' : '#2e1a1a';
+            const progColor = onTrack ? '#22c55e' : '#ef4444';
             return (
               <div
                 key={goal.id}
