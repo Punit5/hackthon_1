@@ -1,0 +1,7 @@
+# For future AI message generation, you may need:
+openai>=1.0.0
+python-dotenv>=1.0.0
+SQLAlchemy>=2.0.0
+psycopg2-binary>=2.9.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0 
