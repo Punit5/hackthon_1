@@ -134,7 +134,23 @@ function App() {
         left: 0,
         zIndex: 100
       }}>
-        <img src="/images/aviso-logo.png" alt="Aviso Logo" style={{ height: 40, marginRight: 24 }} />
+        {/* Left logo */}
+        <img src="/images/aviso-logo.png" alt="Aviso Logo" style={{ height: 48, marginRight: 24, zIndex: 2 }} />
+        {/* Center logo - absolutely centered */}
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          width: 200,
+          zIndex: 1
+        }}>
+          <img src="/images/halo-logo.png" alt="HALO Logo" style={{ width: 200, objectFit: "contain" }} />
+        </div>
       </header>
       {/* Main Content */}
       <div style={{
@@ -146,9 +162,6 @@ function App() {
         padding: 36,
         minHeight: 600
       }}>
-        <h1 style={{ textAlign: "center", fontWeight: 700, fontSize: 36, marginBottom: 32, color: "#22223b" }}>
-          Goal Pulse
-        </h1>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32 }}>
           {selectedClient && clientName && (
             <span style={{
