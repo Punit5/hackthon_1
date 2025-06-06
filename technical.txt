@@ -1,0 +1,73 @@
+HALO: Technical Summary
+
+========================
+
+Overview
+--------
+
+HALO is a modern, AI-powered financial wellness assistant designed to help users track, understand, and stay motivated toward their life goals. It combines personalized messaging, progress tracking, and retrieval-augmented AI to deliver a unique, engaging experience for both individuals and financial advisors.
+
+
+Technologies Used
+----------------
+
+**Frontend:**
+- React (JavaScript) for a responsive, interactive user interface
+- CSS-in-JS and inline styles for custom UI/UX
+- Fetch API for communication with the backend
+
+**Backend:**
+- FastAPI (Python) for building RESTful APIs
+- SQLAlchemy for ORM-based database access
+- LangChain for Retrieval-Augmented Generation (RAG) with LLMs
+- OpenAI/Azure OpenAI for AI-generated, personalized messaging
+- Twilio for sending SMS notifications and reminders
+
+**Database:**
+- PostgreSQL for persistent storage of clients, goals, and history
+
+**Vector Database:**
+- Chroma for storing and retrieving embedded goal history chunks
+
+**DevOps/Deployment:**
+- Docker for containerization and cross-platform compatibility
+- dotenv for secure environment variable management
+
+
+Strengths / Where HALO Excels
+----------------------------
+
+- **Personalized AI Messaging:** Uses Azure OpenAI to generate fresh, motivational, and context-aware messages for each user.
+- **Retrieval-Augmented Generation (RAG):** Combines user data with LLMs to provide answers grounded in real financial history.
+- **Cross-Platform Compatibility:** Docker setup and line-ending normalization ensure smooth operation on both Windows and Mac.
+- **User Engagement:** SMS reminders and milestone celebrations keep users motivated and on track.
+- **Security Best Practices:** Sensitive credentials are managed via environment variables and not committed to source control.
+
+
+Limitations
+-----------
+
+- **API Rate Limits:** Dependent on Azure OpenAI and Twilio quotas, which may restrict usage under heavy load or free tiers.
+- **Single-User/Small Team Focus:** Current design is best suited for individuals or small advisory teams; multi-tenant or enterprise features would require further development.
+- **No Real-Time Collaboration:** The app does not currently support real-time updates or multi-user collaboration on the same account.
+- **Limited Analytics:** Out-of-the-box analytics and reporting are basic; advanced insights would require additional modules.
+- **Manual Data Ingestion:** Goal and client data must be seeded or entered manually; no integrations with external financial data sources yet.
+
+
+Future Enhancements
+-------------------
+
+- **Multi-Tenancy & Role-Based Access:** Support for multiple advisors, clients, and permission levels.
+- **Advanced Analytics & Reporting:** Dashboards for trends, projections, and actionable insights.
+- **Integration with Financial APIs:** Automatic syncing with banks, investment accounts.
+- **More Advanced Chatbot Features:** Including voice support and proactive suggestions.
+- **Customizable Messaging:** Allow users/advisors to customize the tone, frequency, and content of AI messages.
+- **Localization & Accessibility:** Support for multiple languages and enhanced accessibility features.
+- **Enhanced Security:** Features like 2FA, audit logs, and compliance with financial data regulations.
+
+
+Summary
+-------
+
+HALO is a robust, extensible platform for AI-driven financial goal management, with a modern tech stack and a strong foundation for future growth. Its strengths are in personalized engagement and AI integration, while future work can focus on scalability, automation, and deeper analytics.
+
