@@ -5,6 +5,12 @@ import os
 import decimal
 from message_generator import calculate_progress_percent, detect_progress_change, generate_message
 from pydantic import BaseModel
+import openai
+from dotenv import load_dotenv
+from langchain_rag import langchain_ai_chat
+
+# Load environment variables from .env
+load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '5432')
@@ -13,6 +19,17 @@ DB_USER = os.getenv('DB_USER', 'user')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
 
 DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Azure OpenAI config from environment
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
+AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+AZURE_OPENAI_VERSION = os.getenv("AZURE_OPENAI_VERSION", "2023-05-15")
+
+openai.api_type = "azure"
+openai.api_base = AZURE_OPENAI_ENDPOINT
+openai.api_version = AZURE_OPENAI_VERSION
+openai.api_key = AZURE_OPENAI_KEY
 
 app = FastAPI()
 
@@ -128,4 +145,13 @@ async def update_goal_amount(req: UpdateGoalAmountRequest):
             "current_amount": req.current_amount,
             "last_message_sent": message
         })
-    return {"message": "Goal updated and history entry created.", "motivational_message": message} 
+    return {"message": "Goal updated and history entry created.", "motivational_message": message}
+
+class ChatRequest(BaseModel):
+    messages: list
+
+@app.post("/api/ai-chat")
+def ai_chat(req: ChatRequest):
+    answer, sources = langchain_ai_chat(req.messages)
+    print("[LANGCHAIN RAG SOURCES]:", sources)
+    return {"reply": answer} 

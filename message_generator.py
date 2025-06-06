@@ -7,12 +7,17 @@ load_dotenv()
 
 try:
     import openai
-    openai_api_key = '';
-    # openai_api_key = os.getenv("OPENAI_API_KEY")
-    print("[DEBUG] OpenAI Key Loaded:", bool(openai_api_key))
-    OPENAI_AVAILABLE = openai_api_key is not None
+    AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+    AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
+    AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+    AZURE_OPENAI_VERSION = os.getenv("AZURE_OPENAI_VERSION", "2023-05-15")
+    print("[DEBUG] Azure OpenAI Key Loaded:", bool(AZURE_OPENAI_KEY))
+    OPENAI_AVAILABLE = AZURE_OPENAI_KEY is not None and AZURE_OPENAI_ENDPOINT is not None and AZURE_OPENAI_DEPLOYMENT is not None
     if OPENAI_AVAILABLE:
-        openai_client = openai.Client(api_key=openai_api_key)
+        openai.api_type = "azure"
+        openai.api_base = AZURE_OPENAI_ENDPOINT
+        openai.api_version = AZURE_OPENAI_VERSION
+        openai.api_key = AZURE_OPENAI_KEY
 except ImportError:
     print("[DEBUG] OpenAI import failed.")
     OPENAI_AVAILABLE = False
@@ -30,26 +35,26 @@ def detect_progress_change(current_value, last_month_value):
 
 def get_openai_message(client, progress_percent, progress_change):
     if not OPENAI_AVAILABLE:
-        print("[DEBUG] OpenAI not available or API key missing.")
+        print("[DEBUG] OpenAI not available or API key/endpoint missing.")
         return None
     name = client["client_name"].split()[0]
     goal = client["goal_type"].lower()
     last_message = client["last_message_sent"]
     percent_str = f"{progress_percent:g}"
     prompt = (
-        f"You are a friendly financial assistant. Generate a short, fresh, motivational, and text-friendly message for {name} about their {goal} goal. "
+        f"You are a friendly financial assistant for Dave. Generate a short, fresh, motivational, and text-friendly message for {name} about their {goal} goal. "
         f"They are at {percent_str}% of their goal. The progress this month has {progress_change}. "
         f"Do not repeat this previous message: '{last_message}'. "
-        f"Use emojis, keep it under 2 sentences, and make it suitable for SMS."
+        f"Use emojis, keep it under 2 sentences, and make it suitable for SMS. Add a text like from your finacial advisor Dave."
     )
     try:
-        response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+        response = openai.ChatCompletion.create(
+            engine=AZURE_OPENAI_DEPLOYMENT,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=60,
             temperature=0.9,
         )
-        msg = response.choices[0].message.content.strip()
+        msg = response.choices[0].message["content"].strip()
         print("[DEBUG] OpenAI message generated.")
         return msg
     except Exception as e:

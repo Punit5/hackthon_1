@@ -78,18 +78,43 @@ function App() {
   function handleChatSend(e) {
     e.preventDefault();
     if (!chatInput.trim()) return;
+    const newUserMsg = { sender: "user", text: chatInput };
     setChatMessages((msgs) => [
       ...msgs,
-      { sender: "user", text: chatInput }
+      newUserMsg
     ]);
     setChatInput("");
-    // Placeholder: echo AI response after 1s
-    setTimeout(() => {
-      setChatMessages((msgs) => [
-        ...msgs,
-        { sender: "ai", text: "(AI will answer here in the next version!)" }
-      ]);
-    }, 1000);
+
+    // Prepare messages for OpenAI format
+    const openaiMessages = [
+      { role: "system", content: "You are a helpful, fun financial advisor assistant." },
+      ...chatMessages.map(msg =>
+        msg.sender === "user"
+          ? { role: "user", content: msg.text }
+          : { role: "assistant", content: msg.text }
+      ),
+      { role: "user", content: chatInput }
+    ];
+
+    // Call backend AI chat endpoint
+    fetch("http://localhost:8000/api/ai-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: openaiMessages })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setChatMessages((msgs) => [
+          ...msgs,
+          { sender: "ai", text: data.reply }
+        ]);
+      })
+      .catch(() => {
+        setChatMessages((msgs) => [
+          ...msgs,
+          { sender: "ai", text: "(Sorry, I couldn't get a response from the AI right now.)" }
+        ]);
+      });
   }
 
   return (

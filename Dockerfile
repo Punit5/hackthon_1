@@ -6,7 +6,6 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN chmod +x wait-for-it.sh
 
-RUN ls -l /app
-
-CMD ls -l /app && python main.py 
+CMD ["sh", "-c", "./wait-for-it.sh db:5432 -- python populate_vectors.py && uvicorn api:app --host 0.0.0.0 --port 8000"] 
