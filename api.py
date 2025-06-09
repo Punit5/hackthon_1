@@ -4,10 +4,11 @@ from sqlalchemy import create_engine, text
 import os
 import decimal
 from message_generator import calculate_progress_percent, detect_progress_change, generate_message
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import openai
 from dotenv import load_dotenv
 from langchain_rag import langchain_ai_chat
+from send_sms import send_sms
 
 # Load environment variables from .env
 load_dotenv()
@@ -106,6 +107,7 @@ class UpdateGoalAmountRequest(BaseModel):
     client_id: int
     goal_id: int
     current_amount: float
+    send_sms: bool = False  # Optional parameter, default False
 
 @app.post("/update-goal-amount")
 async def update_goal_amount(req: UpdateGoalAmountRequest):
@@ -145,7 +147,20 @@ async def update_goal_amount(req: UpdateGoalAmountRequest):
             "current_amount": req.current_amount,
             "last_message_sent": message
         })
-    return {"message": "Goal updated and history entry created.", "motivational_message": message}
+    sms_results = []
+    if req.send_sms:
+        numbers = phone_numbers_cache.get("numbers", [])
+        for num in numbers:
+            try:
+                sid = send_sms(num, message)
+                sms_results.append({"number": num, "status": "sent", "sid": sid})
+            except Exception as e:
+                sms_results.append({"number": num, "status": "failed", "error": str(e)})
+    return {
+        "message": "Goal updated and history entry created.",
+        "motivational_message": message,
+        "sms_results": sms_results if req.send_sms else None
+    }
 
 class ChatRequest(BaseModel):
     messages: list
@@ -154,4 +169,24 @@ class ChatRequest(BaseModel):
 def ai_chat(req: ChatRequest):
     answer, sources = langchain_ai_chat(req.messages)
     print("[LANGCHAIN RAG SOURCES]:", sources)
-    return {"reply": answer} 
+    return {"reply": answer}
+
+# Local cache for phone numbers
+phone_numbers_cache = {}
+
+class PhoneNumbersRequest(BaseModel):
+    numbers: list[str] = Field(
+        ..., 
+        example=["+1234567890", "+1987654321", "+1123456789"]
+    )
+
+@app.post("/phone-numbers")
+def store_phone_numbers(req: PhoneNumbersRequest):
+    # Store the numbers in a global cache, override previous
+    phone_numbers_cache["numbers"] = req.numbers
+    return {"message": "Phone numbers stored.", "count": len(req.numbers)}
+
+@app.get("/phone-numbers")
+def get_phone_numbers():
+    # Return the current list of phone numbers
+    return {"numbers": phone_numbers_cache.get("numbers", [])} 
