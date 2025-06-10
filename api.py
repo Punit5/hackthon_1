@@ -189,4 +189,21 @@ def store_phone_numbers(req: PhoneNumbersRequest):
 @app.get("/phone-numbers")
 def get_phone_numbers():
     # Return the current list of phone numbers
-    return {"numbers": phone_numbers_cache.get("numbers", [])} 
+    return {"numbers": phone_numbers_cache.get("numbers", [])}
+
+class BulkSMSRequest(BaseModel):
+    message: str = Field(..., example="This is a test message from HALO!")
+
+@app.post("/send-bulk-sms")
+def send_bulk_sms(req: BulkSMSRequest):
+    numbers = phone_numbers_cache.get("numbers", [])
+    if not numbers:
+        return {"error": "No phone numbers stored. Please add numbers first."}
+    sms_results = []
+    for num in numbers:
+        try:
+            sid = send_sms(num, req.message)
+            sms_results.append({"number": num, "status": "sent", "sid": sid})
+        except Exception as e:
+            sms_results.append({"number": num, "status": "failed", "error": str(e)})
+    return {"message": "Bulk SMS send attempt complete.", "results": sms_results} 
