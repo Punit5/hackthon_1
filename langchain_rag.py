@@ -58,7 +58,10 @@ def langchain_ai_chat(messages):
             chat_history.append((m["role"], m["content"]))
         elif m["role"] == "assistant":
             chat_history.append((m["role"], m["content"]))
-    system_message = ("system", "You are a helpful financial assistant for Puneet. Always try to personalize your answers.")
+    system_message = (
+        "system",
+        "You are an Advisor AI Assistant. Only answer questions related to finance, financial goals, savings, or client progress. For other topics, politely decline."
+    )
     chat_history = [system_message] + chat_history
     print("[DEBUG] Chat history sent to LangChain:", chat_history)
     question = messages[-1]["content"]
